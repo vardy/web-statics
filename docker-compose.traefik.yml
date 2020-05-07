@@ -1,0 +1,30 @@
+version: '3.7'
+
+services:
+  nginx:
+    build: .
+    restart: unless-stopped
+    networks:
+     - web
+    labels: 
+     - "traefik.enable=true"
+     # Define www-redirect middleware
+     - "traefik.http.middlewares.www-redirect.redirectregex.regex=^https://www.vardy.dev/(.*)"
+     - "traefik.http.middlewares.www-redirect.redirectregex.replacement=https://vardy.dev/$${1}"
+     - "traefik.http.middlewares.www-redirect.redirectregex.permanent=true"
+     # Define nginx-web router
+     - "traefik.http.routers.nginx-web.rule=Host(`vardy.dev`) || Host(`www.vardy.dev`)"
+     - "traefik.http.routers.nginx-web.middlewares=www-redirect" # Add www-redirect middleware
+     - "traefik.http.routers.nginx-web.entrypoints=web"
+     - "traefik.http.routers.nginx-web.middlewares=redirect@file"
+     # Define nginx-secured router
+     - "traefik.http.routers.nginx-secured.rule=Host(`vardy.dev`) || Host(`www.vardy.dev`)"
+     - "traefik.http.routers.nginx-secured.middlewares=www-redirect" # Add www-redirect middleware
+     - "traefik.http.routers.nginx-secured.entrypoints=web-secured"
+     - "traefik.http.routers.nginx-secured.tls.certresolver=mytlschallenge"
+     # Service's port
+     - "traefik.http.services.nginx.loadbalancer.server.port=443"
+
+networks:
+  web:
+    external: true
