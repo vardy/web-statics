@@ -23,7 +23,7 @@ services:
      - "traefik.http.routers.nginx-secured.entrypoints=web-secured"
      - "traefik.http.routers.nginx-secured.tls.certresolver=mytlschallenge"
      # Service's port
-     - "traefik.http.services.nginx.loadbalancer.server.port=443"
+     - "traefik.http.services.nginx.loadbalancer.server.port=80"
 
 networks:
   web:
